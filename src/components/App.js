@@ -1,94 +1,76 @@
-import React, { useState } from 'react';
-import './Calendar.css';
+import React, { useState } from "react";
 
-const Calendar = () => {
-  const [currentDate, setCurrentDate] = useState(new Date());
+const App = () => {
+  const [date, setDate] = useState(new Date());
 
-  const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  const months = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
-  ];
-
-  const getDaysInMonth = (year, month) => {
-    return new Date(year, month + 1, 0).getDate();
-  };
-
-  const renderDaysOfWeek = () => {
-    return daysOfWeek.map((day, index) => (
-      <div key={index} className="day-of-week">
-        {day}
-      </div>
-    ));
-  };
-
-  const renderDaysInMonth = () => {
-    const year = currentDate.getFullYear();
-    const month = currentDate.getMonth();
-    const daysInMonth = getDaysInMonth(year, month);
+  const year = date.getFullYear();
+  const month = date.getMonth();
+  const months = ['January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'];
+  
+  const getTotalDaysInMonth = () => {
+    const tD = [];
     const firstDayOfMonth = new Date(year, month, 1).getDay();
+    const totalDays = new Date(year, month + 1, 0).getDate();
 
-    const days = [];
-
+    // Add empty cells for days before the first day of the month
     for (let i = 0; i < firstDayOfMonth; i++) {
-      days.push(<div key={`empty-${i}`} className="day empty"></div>);
+      tD.push(<td key={`empty-${i}`} className="empty"></td>);
     }
 
-    for (let day = 1; day <= daysInMonth; day++) {
-      days.push(
-        <div key={day} className="day">
-          {day}
-        </div>
-      );
+    // Add cells for each day of the month
+    for (let i = 1; i <= totalDays; i++) {
+      tD.push(<td key={`day-${i}`} className="non-empty">{i}</td>);
     }
 
-    return days;
-  };
-
-  const handleMonthChange = (event) => {
-    const month = event.target.value;
-    setCurrentDate(new Date(currentDate.getFullYear(), month, 1));
-  };
-
-  const handleYearChange = (event) => {
-    const year = event.target.value;
-    setCurrentDate(new Date(year, currentDate.getMonth(), 1));
-  };
-
-  const generateYears = (startYear, endYear) => {
-    let years = [];
-    for (let year = startYear; year <= endYear; year++) {
-      years.push(year);
+    // Add rows with 7 days each
+    const rows = [];
+    for (let i = 0; i < tD.length; i += 7) {
+      rows.push(<tr key={`row-${i}`}>{tD.slice(i, i + 7)}</tr>);
     }
-    return years;
+
+    return rows;
   };
+
+  const changeMonth = (offset) => {
+    setDate(new Date(year, month + offset, 1));
+  };
+
+
+  function clickhandler(e){
+    console.log(e.target.value);  
+    const newMonth = parseInt(e.target.value);
+    setDate(new Date(year, newMonth, 1));
+  }
 
   return (
-    <div className="calendar">
-      <div className="header">
-        <button onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1))}>Previous</button>
-        <div>
-          <select value={currentDate.getMonth()} onChange={handleMonthChange}>
-            {months.map((month, index) => (
-              <option key={index} value={index}>{month}</option>
-            ))}
-          </select>
-          <select value={currentDate.getFullYear()} onChange={handleYearChange}>
-            {generateYears(2000, 2030).map((year) => (
-              <option key={year} value={year}>{year}</option>
-            ))}
-          </select>
-        </div>
-        <button onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1))}>Next</button>
-      </div>
-      <div className="days-of-week">
-        {renderDaysOfWeek()}
-      </div>
-      <div className="days-in-month">
-        {renderDaysInMonth()}
-      </div>
-    </div>
+    <>
+
+    <select value={date.getMonth()} onChange={clickhandler}>{months.map((month, index)=>{
+    return <option key={index} value={index}>{month}</option>
+    })}</select>
+
+      <div>Render days</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Sun</th>
+            <th>Mon</th>
+            <th>Tue</th>
+            <th>Wed</th>
+            <th>Thu</th>
+            <th>Fri</th>
+            <th>Sat</th>
+          </tr>
+        </thead>
+        <tbody>
+          {getTotalDaysInMonth()}
+        </tbody>
+      </table>
+      <button onClick={() => changeMonth(-1)}>Previous Month</button>
+      <button onClick={() => changeMonth(1)}>Next Month</button>
+    </>
   );
 };
 
-export default Calendar;
+export default App;
